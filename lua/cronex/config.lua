@@ -14,6 +14,7 @@ local defaults = {
     format = function(s)
         return s
     end,
+    highlight = "DiagnosticVirtualTextInfo",
 }
 
 M.parse_opts = function(opts)
@@ -28,10 +29,20 @@ M.parse_opts = function(opts)
         require("cronex.explain").explain(cmd, opts.explainer.timeout, cron, opts.format, bufnr, lnum, ns, explanations)
     end
 
+    local set_virtual_text = function(message, bufnr, lnum, ns)
+        local explanation = message:gsub("\n", "")
+        vim.api.nvim_buf_set_extmark(bufnr, ns, lnum, 0, {
+            virt_text = { { explanation, opts.highlight } },
+            virt_text_pos = "eol",
+            hl_mode = "combine",
+        })
+    end
+
     return {
         file_patterns = opts.file_patterns,
         extract = extract,
         explain = explain,
+        set_virtual_text = set_virtual_text,
     }
 end
 

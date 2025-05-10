@@ -1,6 +1,6 @@
 local api = vim.api
 
-local M = {}
+local M = { enabled = false }
 local augroup_name = "plugin-cronex.nvim"
 local augroup = api.nvim_create_augroup(augroup_name, { clear = true })
 local ns = api.nvim_create_namespace(augroup_name)
@@ -8,7 +8,7 @@ local ns = api.nvim_create_namespace(augroup_name)
 local make_set_explanations = function(config)
     local set_explanations = function()
         local bufnr = api.nvim_get_current_buf()
-        vim.diagnostic.reset(ns, bufnr)
+        vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
         local crons = config.extract()
         local explanations = {}
         for lnum, cron in pairs(crons) do
@@ -29,15 +29,26 @@ M.enable = function()
         desc = "Set explanations when leaving insert mode or changing the text",
     })
     set_explanations()
+    M.enabled = true
 end
 
 M.disable = function()
-    vim.diagnostic.reset(ns, 0)
+    local bufnr = api.nvim_get_current_buf()
+    vim.api.nvim_buf_clear_namespace(bufnr, ns, 0, -1)
     -- pcall: let error (because group no longer exists) go silent
     -- on successive calls to CronExplainedDisable
     pcall(function()
         api.nvim_del_augroup_by_id(augroup)
     end)
+    M.enabled = false
+end
+
+M.toggle = function()
+    if M.enabled then
+        M.disable()
+    else
+        M.enable()
+    end
 end
 
 M.setup = function(opts)
@@ -53,6 +64,12 @@ M.setup = function(opts)
         "CronExplainedDisable",
         require("cronex").disable,
         { desc = "Disable explanations of cron expressions" }
+    )
+
+    api.nvim_create_user_command(
+        "CronExplainedToggle",
+        require("cronex").toggle,
+        { desc = "Toggle explanations of cron expressions" }
     )
 
     augroup = api.nvim_create_augroup(augroup_name, { clear = false })

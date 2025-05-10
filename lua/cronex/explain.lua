@@ -12,9 +12,12 @@ local append_explanation = function(explanations, explanation, bufnr, lnum)
     })
 end
 
-local schedule_explanations = function(explanations, ns, bufnr)
+local schedule_explanations = function(explanations, ns, lnum, bufnr)
     vim.schedule(function()
-        vim.diagnostic.set(ns, bufnr, explanations, {})
+        local config = require("cronex").config
+        if explanations[1] and explanations[1].message then
+            config.set_virtual_text(explanations[1].message, bufnr, lnum, ns)
+        end
     end)
 end
 
@@ -22,7 +25,7 @@ M.explain = function(cmd, timeout, cron_expression, format, bufnr, lnum, ns, exp
     local cached = M._cache[cron_expression]
     if cached then
         append_explanation(explanations, format(cached), bufnr, lnum)
-        schedule_explanations(explanations, ns, bufnr)
+        schedule_explanations(explanations, ns, lnum, bufnr)
     else
         local on_exit = function(obj)
             if obj.signal == 15 and obj.code == 124 then --TODO: acceptance test?
@@ -42,7 +45,7 @@ M.explain = function(cmd, timeout, cron_expression, format, bufnr, lnum, ns, exp
                 -- Update cache
                 M._cache[cron_expression] = data
                 append_explanation(explanations, format(data), bufnr, lnum)
-                schedule_explanations(explanations, ns, bufnr)
+                schedule_explanations(explanations, ns, lnum, bufnr)
             end
         end
 
