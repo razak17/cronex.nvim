@@ -1,5 +1,5 @@
 [![CI](https://github.com/fabridamicelli/cronex.nvim/actions/workflows/ci.yml/badge.svg)](https://github.com/fabridamicelli/cronex.nvim/actions/workflows/ci.yml)
-![Git Clone Count](https://img.shields.io/badge/Downloads/Month-1412-brightgreen)
+![Git Clone Count](https://img.shields.io/badge/Downloads/Month-1432-brightgreen)
 [![Update downloads counts](https://github.com/fabridamicelli/cronex.nvim/actions/workflows/update-downloads-count.yml/badge.svg)](https://github.com/fabridamicelli/cronex.nvim/actions/workflows/update-downloads-count.yml)
 
 If you find this work useful, don't forget to give it a GitHub ⭐ to help others find and trust it!
@@ -29,6 +29,12 @@ You will need a cron expression explainer installed.
 The default is [cronstrue](https://www.npmjs.com/package/cronstrue), which is the one used by the [vscode package `cron-explained`](https://marketplace.visualstudio.com/items?itemName=tumido.cron-explained).
 
 [Install the `cronstrue` library](https://www.npmjs.com/package/cronstrue) and make sure that the command `cronstrue` is available in the environment where your buffer is being shown.
+
+[Mason](https://github.com/mason-org/mason.nvim) users can alternatively install `cronstrue` from the [mason registry](https://mason-registry.dev/registry/list#cronstrue) with `:MasonInstall cronstrue` or by adding it to the `ensure_installed` list:
+
+```lua
+require("mason-tool-installer").setup({ ensure_installed = { "cronstrue" } })
+```
 
 That will use the `cronstrue` library under the hood to generate the explanations.
 
